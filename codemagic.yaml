@@ -1,4 +1,27 @@
-publishing:
-  email:
-    recipients:
-      - ravindrakumar73555@gmail.com
+workflows:
+  react-native-android:
+    name: Cabzone React Native Android Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      groups:
+        - placement
+      node: latest
+    scripts:
+      - name: Extract Project Bundle
+        script: |
+          echo "Extracting app package..."
+          unzip -o *.zip
+      - name: Install Dependencies
+        script: |
+          npm install
+      - name: Generate Android Standalone Package
+        script: |
+          cd android && ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/apk/release/*.apk
+    publishing:
+      email:
+        recipients:
+          - ravindrakumar73555@gmail.com
+
