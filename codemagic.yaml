@@ -4,24 +4,33 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     environment:
-      groups:
-        - placement
       node: latest
     scripts:
       - name: Extract Project Bundle
         script: |
           echo "Extracting app package..."
           unzip -o *.zip
+          # Check if unpacked into a subfolder and move contents if needed
+          if [ -d "cabzone" ]; then cd cabzone; fi
       - name: Install Dependencies
         script: |
+          if [ -d "cabzone" ]; then cd cabzone; fi
           npm install
       - name: Generate Android Standalone Package
         script: |
-          cd android && ./gradlew assembleRelease
+          if [ -d "cabzone" ]; then cd cabzone; fi
+          if [ -d "android" ]; then
+            cd android && ./gradlew assembleRelease
+          else
+            echo "Searching for android directory..."
+            find . -name "android" -type d
+            cd $(find . -name "android" -type d | head -n 1) && ./gradlew assembleRelease
+          fi
     artifacts:
-      - android/app/build/outputs/apk/release/*.apk
+      - "**/build/outputs/apk/release/*.apk"
     publishing:
       email:
         recipients:
           - ravindrakumar73555@gmail.com
+
 
